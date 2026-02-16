@@ -9,6 +9,8 @@ import {
 import { buildPrompt, buildCompactSummary } from './prompt-builder/prompt-builder.js';
 import { FreepikClient } from './client/freepik-client.js';
 import { SearchRunner } from './runner/search-runner.js';
+import { DownloadRunner } from './runner/download-runner.js';
+import { readFileSync } from 'fs';
 
 dotenv.config();
 
@@ -133,6 +135,67 @@ program
       }
     } catch (error) {
       console.error('❌ Search failed:', error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('download')
+  .description('Download videos from selection.json')
+  .argument('<file>', 'Path to stockplan.json file')
+  .option('-o, --output <dir>', 'Output directory', './output')
+  .option('-c, --concurrency <number>', 'Max concurrent downloads', '3')
+  .action(async (file: string, options: { output: string; concurrency: string }) => {
+    console.log(`⬇️  Downloading videos from ${file}...`);
+
+    // Validate stock plan
+    const result = loadAndValidateStockPlan(file);
+    if (!result.valid || !result.data) {
+      console.error('❌ Validation failed:');
+      console.error('');
+      console.error(formatValidationErrors(result.errors));
+      process.exit(1);
+    }
+
+    // Load selection.json
+    const selectionPath = `${options.output}/_meta/selection.json`;
+    let selection;
+    try {
+      selection = JSON.parse(readFileSync(selectionPath, 'utf-8'));
+    } catch (error) {
+      console.error('❌ Failed to load selection.json');
+      console.error('   Run the search command first to generate selection.json');
+      process.exit(1);
+    }
+
+    // Check API key
+    const apiKey = process.env.FREEPIK_API_KEY;
+    if (!apiKey) {
+      console.error('❌ FREEPIK_API_KEY environment variable not set');
+      console.error('Please create a .env file with your Freepik API key');
+      process.exit(1);
+    }
+
+    // Create client and download runner
+    const client = new FreepikClient({ apiKey });
+    const runner = new DownloadRunner(client, {
+      outputDir: options.output,
+      maxConcurrent: parseInt(options.concurrency, 10),
+      progressCallback: (progress) => {
+        console.log(
+          `[${progress.completedFiles}/${progress.totalFiles}] ${progress.currentScene}: ${progress.currentFile}`,
+        );
+      },
+    });
+
+    try {
+      await runner.run(result.data, selection);
+
+      console.log('');
+      console.log('✅ Download completed!');
+      console.log(`   All videos saved to: ${options.output}`);
+    } catch (error) {
+      console.error('❌ Download failed:', error);
       process.exit(1);
     }
   });

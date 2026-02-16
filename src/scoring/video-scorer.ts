@@ -101,7 +101,7 @@ export class VideoScorer {
     let matchCount = 0;
     for (const query of queries) {
       const terms = query.toLowerCase().split(/\s+/);
-      const allTermsMatch = terms.every((term) => searchableText.includes(term));
+      const allTermsMatch = terms.every((term: string) => searchableText.includes(term));
       if (allTermsMatch) matchCount++;
     }
 
