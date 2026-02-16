@@ -1,0 +1,24 @@
+name: Task
+description: Implementation task aligned to roadmap
+title: "task: "
+labels: [task]
+body:
+  - type: input
+    id: phase
+    attributes:
+      label: Phase
+      placeholder: "Faza 0..8"
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+    validations:
+      required: true
+  - type: textarea
+    id: dod
+    attributes:
+      label: Definition of Done
+    validations:
+      required: true
