@@ -26,17 +26,7 @@ export class Lockfile {
    * Acquire lock (throws if already locked)
    */
   async acquire(phase: 'search' | 'download'): Promise<void> {
-    // Check if lock exists
-    const exists = await this.exists();
-    if (exists) {
-      const lockInfo = await this.read();
-      throw new Error(
-        `Another process is running (PID ${lockInfo.pid}, started ${lockInfo.started_at}).\n` +
-          `If the process is not running, delete ${this.lockPath}`
-      );
-    }
-
-    // Create lock
+    // Create lock info
     const lockInfo: LockInfo = {
       pid: process.pid,
       started_at: new Date().toISOString(),
@@ -44,8 +34,25 @@ export class Lockfile {
       status: 'running',
     };
 
+    // Ensure directory exists
     await fs.mkdir(path.dirname(this.lockPath), { recursive: true });
-    await fs.writeFile(this.lockPath, JSON.stringify(lockInfo, null, 2), 'utf-8');
+
+    // Atomically create lock file with exclusive flag to prevent race conditions
+    try {
+      const lockData = JSON.stringify(lockInfo, null, 2);
+      await fs.writeFile(this.lockPath, lockData, { encoding: 'utf-8', flag: 'wx' });
+    } catch (error: unknown) {
+      // If file already exists (EEXIST), read the existing lock and throw error
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'EEXIST') {
+        const existingLock = await this.read();
+        throw new Error(
+          `Another process is running (PID ${existingLock.pid}, started ${existingLock.started_at}).\n` +
+            `If the process is not running, delete ${this.lockPath}`
+        );
+      }
+      // Re-throw other errors
+      throw error;
+    }
 
     // Setup graceful shutdown handlers
     this.setupShutdownHandlers();

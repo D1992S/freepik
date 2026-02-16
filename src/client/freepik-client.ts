@@ -155,7 +155,10 @@ export class FreepikClient {
         // Handle rate limiting
         if (response.status === 429) {
           const resetTime = this.currentRateLimit?.reset ?? Date.now() / 1000 + 60;
-          const waitMs = Math.max(0, resetTime * 1000 - Date.now());
+          const rawWaitMs = Math.max(0, resetTime * 1000 - Date.now());
+          // Cap the wait time to prevent unbounded delays (5 minutes max)
+          const MAX_RATE_LIMIT_WAIT_MS = 300000; // 5 minutes
+          const waitMs = Math.min(rawWaitMs, MAX_RATE_LIMIT_WAIT_MS);
 
           if (attempt < this.maxRetries) {
             await this.sleep(waitMs);

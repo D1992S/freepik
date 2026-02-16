@@ -28,7 +28,12 @@ const createMockVideo = (overrides: Partial<FreepikResource> = {}): FreepikResou
 
 const createMockScene = (overrides: Partial<SceneDefinition> = {}): SceneDefinition => ({
   order: 1,
+  id: 'scene-1',
+  label: 'Test Scene',
   slug: 'test-scene',
+  excerpt: 'A test scene for unit testing',
+  negative_terms: [],
+  intent: 'Testing video scoring functionality',
   description: 'Test scene',
   min_duration_s: 5,
   max_duration_s: 15,

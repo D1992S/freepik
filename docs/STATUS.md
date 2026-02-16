@@ -21,7 +21,7 @@
 - ✅ **Faza 1 — StockPlan schema i walidacja** (UKOŃCZONA):
   - `src/schemas/stockplan.schema.json` — pełna JSON Schema.
   - Walidator Ajv z czytelnymi błędami (`src/validator/stockplan-validator.ts`).
-  - Prompt builder — CLI output formatujący stockplan (`src/prompt-builder/prompt-builder.js`).
+  - Prompt builder — CLI output formatujący stockplan (`src/prompt-builder/prompt-builder.ts`).
   - Testy jednostkowe dla walidatora i prompt buildera.
 - ✅ **Faza 0.5 — Spike API** (UKOŃCZONA):
   - Skrypt spike do weryfikacji Freepik API (`scripts/freepik-api-spike.ts`).

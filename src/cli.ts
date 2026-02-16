@@ -129,9 +129,6 @@ program
       // Run search pipeline
       const results = await runner.run(result.data);
 
-      // Release lock
-      await lockfile.release();
-
       console.log('');
       console.log('✅ Search completed!');
       console.log('');
@@ -155,9 +152,15 @@ program
         console.log('   Use the download command to download selected videos');
       }
     } catch (error) {
-      console.error('❌ Search failed:', error);
-      await lockfile.release();
+      const msg = error instanceof Error ? error.message : String(error);
+      const stack = error instanceof Error ? error.stack : undefined;
+      console.error(`❌ Search failed: ${msg}`);
+      if (stack) {
+        console.error(stack);
+      }
       process.exit(1);
+    } finally {
+      await lockfile.release();
     }
   });
 
@@ -183,10 +186,37 @@ program
     const selectionPath = `${options.output}/_meta/selection.json`;
     let selection: SceneSelection[];
     try {
-      selection = JSON.parse(readFileSync(selectionPath, 'utf-8')) as SceneSelection[];
+      const parsed: unknown = JSON.parse(readFileSync(selectionPath, 'utf-8'));
+
+      // Validate that parsed is an array
+      if (!Array.isArray(parsed)) {
+        throw new Error(`selection.json must be an array, got ${typeof parsed}`);
+      }
+
+      // Validate each item has required fields
+      for (let i = 0; i < parsed.length; i++) {
+        const item: unknown = parsed[i];
+        if (!item || typeof item !== 'object') {
+          throw new Error(`selection[${i}] must be an object, got ${typeof item}`);
+        }
+        const obj = item as Record<string, unknown>;
+        if (typeof obj.scene_slug !== 'string') {
+          throw new Error(`selection[${i}].scene_slug must be a string`);
+        }
+        if (typeof obj.status !== 'string') {
+          throw new Error(`selection[${i}].status must be a string`);
+        }
+        if (!Array.isArray(obj.selected_clips)) {
+          throw new Error(`selection[${i}].selected_clips must be an array`);
+        }
+      }
+
+      selection = parsed as SceneSelection[];
     } catch (error) {
-      console.error('❌ Failed to load selection.json');
-      console.error('   Run the search command first to generate selection.json');
+      const msg = error instanceof Error ? error.message : String(error);
+      console.error(`❌ Failed to load or validate selection.json: ${msg}`);
+      console.error(`   Path: ${selectionPath}`);
+      console.error('   Run the search command first to generate valid selection.json');
       process.exit(1);
     }
 
@@ -231,16 +261,19 @@ program
     try {
       await runner.run(result.data, selection);
 
-      // Release lock
-      await lockfile.release();
-
       console.log('');
       console.log('✅ Download completed!');
       console.log(`   All videos saved to: ${options.output}`);
     } catch (error) {
-      console.error('❌ Download failed:', error);
-      await lockfile.release();
+      const msg = error instanceof Error ? error.message : String(error);
+      const stack = error instanceof Error ? error.stack : undefined;
+      console.error(`❌ Download failed: ${msg}`);
+      if (stack) {
+        console.error(stack);
+      }
       process.exit(1);
+    } finally {
+      await lockfile.release();
     }
   });
 

@@ -4,7 +4,10 @@
  */
 
 import * as fs from 'fs/promises';
+import * as fsSync from 'fs';
 import * as path from 'path';
+import { Readable } from 'stream';
+import { finished } from 'stream/promises';
 import type { FreepikClient } from '../client/freepik-client.js';
 import type { SceneSelection } from './search-runner.js';
 import type { StockPlan } from '../types/stockplan.js';
@@ -60,7 +63,11 @@ export class DownloadRunner {
     // Check disk space
     await this.checkDiskSpace();
 
-    const totalFiles = selection.reduce((sum, s) => sum + s.selected.length, 0);
+    // Only count files for scenes that actually exist in stockPlan
+    const totalFiles = selection.reduce((sum, s) => {
+      const scene = stockPlan.scenes?.[s.scene_index];
+      return scene ? sum + s.selected.length : sum;
+    }, 0);
     let completedFiles = 0;
 
     // Process each scene
@@ -170,6 +177,7 @@ export class DownloadRunner {
 
   /**
    * Download a single video file
+   * Streams the response directly to disk to avoid memory issues with large files
    */
   private async downloadVideo(
     resourceId: string,
@@ -185,10 +193,19 @@ export class DownloadRunner {
       throw new Error(`Download failed: ${response.status} ${response.statusText}`);
     }
 
-    const buffer = await response.arrayBuffer();
-    await fs.writeFile(outputPath, Buffer.from(buffer));
+    if (!response.body) {
+      throw new Error('Response body is null');
+    }
 
-    return buffer.byteLength;
+    // Stream response directly to disk to avoid OOM on large files
+    const fileStream = fsSync.createWriteStream(outputPath);
+    const readableStream = Readable.fromWeb(response.body as ReadableStream<Uint8Array>);
+
+    await finished(readableStream.pipe(fileStream));
+
+    // Get file size
+    const stats = await fs.stat(outputPath);
+    return stats.size;
   }
 
   /**
@@ -216,7 +233,10 @@ export class DownloadRunner {
     const rankLetter = String.fromCharCode(96 + rank); // 1='a', 2='b', etc.
     const ext = format.includes('webm') ? 'webm' : 'mp4';
 
-    return `${orderPadded}_${slug}__freepik_${resourceId}__${rankLetter}.${ext}`;
+    // Sanitize resourceId to prevent path traversal
+    const sanitizedResourceId = resourceId.replace(/[^a-zA-Z0-9_-]/g, '_');
+
+    return `${orderPadded}_${slug}__freepik_${sanitizedResourceId}__${rankLetter}.${ext}`;
   }
 
   /**

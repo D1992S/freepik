@@ -39,6 +39,8 @@ export class ErrorLogger {
     const line = JSON.stringify(logEntry) + '\n';
 
     try {
+      // Ensure directory exists before writing
+      await fs.mkdir(path.dirname(this.logPath), { recursive: true });
       await fs.appendFile(this.logPath, line, 'utf-8');
     } catch (error) {
       // Fallback to console if file write fails

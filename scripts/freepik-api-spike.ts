@@ -32,7 +32,11 @@ const config: SpikeConfig = {
   fixturesDir: path.join(process.cwd(), 'tests', 'fixtures'),
 };
 
-async function makeApiCall(endpoint: string, params?: Record<string, string>): Promise<any> {
+async function makeApiCall(
+  endpoint: string,
+  params?: Record<string, string>,
+  timeoutMs: number = 30000
+): Promise<any> {
   if (!FREEPIK_API_KEY) {
     throw new Error('FREEPIK_API_KEY not set in .env file');
   }
@@ -46,26 +50,42 @@ async function makeApiCall(endpoint: string, params?: Record<string, string>): P
 
   console.log(`\n📡 Calling: ${url.pathname}${url.search}`);
 
-  const response = await fetch(url.toString(), {
-    headers: {
-      'x-freepik-api-key': FREEPIK_API_KEY,
-      'Accept': 'application/json',
-    },
-  });
+  // Setup timeout with AbortController
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-  // Log response headers for rate limit analysis
-  console.log(`\n📊 Response status: ${response.status} ${response.statusText}`);
-  console.log('📊 Headers:');
-  console.log(`   - x-ratelimit-limit: ${response.headers.get('x-ratelimit-limit')}`);
-  console.log(`   - x-ratelimit-remaining: ${response.headers.get('x-ratelimit-remaining')}`);
-  console.log(`   - x-ratelimit-reset: ${response.headers.get('x-ratelimit-reset')}`);
+  try {
+    const response = await fetch(url.toString(), {
+      headers: {
+        'x-freepik-api-key': FREEPIK_API_KEY,
+        Accept: 'application/json',
+      },
+      signal: controller.signal,
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`API call failed: ${response.status} ${response.statusText}\n${errorText}`);
+    // Clear timeout on success
+    clearTimeout(timeoutId);
+
+    // Log response headers for rate limit analysis
+    console.log(`\n📊 Response status: ${response.status} ${response.statusText}`);
+    console.log('📊 Headers:');
+    console.log(`   - x-ratelimit-limit: ${response.headers.get('x-ratelimit-limit')}`);
+    console.log(`   - x-ratelimit-remaining: ${response.headers.get('x-ratelimit-remaining')}`);
+    console.log(`   - x-ratelimit-reset: ${response.headers.get('x-ratelimit-reset')}`);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API call failed: ${response.status} ${response.statusText}\n${errorText}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(`API request timed out after ${timeoutMs}ms`);
+    }
+    throw error;
   }
-
-  return response.json();
 }
 
 async function testVideoSearch(): Promise<any> {

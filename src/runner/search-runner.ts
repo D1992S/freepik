@@ -6,6 +6,7 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import type { FreepikClient } from '../client/freepik-client.js';
+import { FreepikApiError } from '../client/freepik-client.js';
 import type { StockPlan, SceneDefinition } from '../types/stockplan.js';
 import { VideoScorer, type ScoredVideo } from '../scoring/video-scorer.js';
 import type { ErrorLogger } from '../utils/error-logger.js';
@@ -87,7 +88,7 @@ export class SearchRunner {
       }
 
       // Search and score for this scene
-      const sceneCandidates = await this.processScene(scene, i);
+      const sceneCandidates = await this.processScene(scene, i, stockPlan);
       results.candidates.push(sceneCandidates);
 
       // Select top clips
@@ -107,7 +108,11 @@ export class SearchRunner {
   /**
    * Process a single scene: search, filter, score
    */
-  private async processScene(scene: SceneDefinition, index: number): Promise<SceneCandidates> {
+  private async processScene(
+    scene: SceneDefinition,
+    index: number,
+    stockPlan: StockPlan
+  ): Promise<SceneCandidates> {
     const allCandidates: ScoredVideo[] = [];
     const queries = scene.search_queries || [];
 
@@ -132,13 +137,24 @@ export class SearchRunner {
           }
         }
       } catch (error) {
-        console.error(`Error searching for "${query}":`, error);
+        // Extract error details
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        const errorName = error instanceof Error ? error.name : 'UnknownError';
+        const statusCode = error instanceof FreepikApiError ? error.statusCode : undefined;
+
+        console.error(
+          `Error searching for "${query}":`,
+          errorName,
+          statusCode ? `[${statusCode}]` : '',
+          errorMsg
+        );
+
         if (this.config.errorLogger) {
           await this.config.errorLogger.logApiError(
             `Search failed for query: ${query}`,
-            undefined,
+            statusCode,
             '/resources',
-            { scene_slug: scene.slug, query }
+            { scene_slug: scene.slug, query, error_name: errorName }
           );
         }
       }
@@ -150,8 +166,8 @@ export class SearchRunner {
     // Sort by score
     const sortedCandidates = VideoScorer.sortByScore(uniqueCandidates);
 
-    // Determine status
-    const targetClips = scene.clips_per_scene ?? 3;
+    // Determine status - use consistent targetClips calculation
+    const targetClips = scene.clips_per_scene ?? stockPlan.global?.clips_per_scene ?? 3;
     let status: 'fulfilled' | 'partial' | 'unfulfilled';
     if (sortedCandidates.length === 0) {
       status = 'unfulfilled';

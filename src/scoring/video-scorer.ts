@@ -75,9 +75,18 @@ export class VideoScorer {
     // Out of range = 0
     if (duration < minDuration || duration > maxDuration) return 0;
 
+    // Calculate range
+    const range = maxDuration - minDuration;
+
+    // Handle edge case: if range is 0 (minDuration === maxDuration)
+    if (range === 0) {
+      // Perfect match (duration === minDuration === maxDuration) = 25
+      // Any other duration would have been caught by range check above
+      return duration === minDuration ? 25 : 0;
+    }
+
     // Calculate distance from middle of range
     const targetDuration = (minDuration + maxDuration) / 2;
-    const range = maxDuration - minDuration;
     const distance = Math.abs(duration - targetDuration);
 
     // Linear decay from center

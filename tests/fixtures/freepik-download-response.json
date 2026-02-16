@@ -1,6 +1,6 @@
 {
   "data": {
-    "url": "https://download.freepik.com/api/files/video-123456789-4k.mp4?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "url": "https://download.freepik.com/api/files/video-123456789-4k.mp4?token=REDACTED_TOKEN",
     "expires_at": "2026-02-16T20:30:00Z",
     "resource_id": "123456789",
     "format": "4k",
