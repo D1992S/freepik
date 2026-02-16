@@ -1,0 +1,17 @@
+{
+  "data": {
+    "url": "https://download.freepik.com/api/files/video-123456789-4k.mp4?token=REDACTED_TOKEN",
+    "expires_at": "2026-02-16T20:30:00Z",
+    "resource_id": "123456789",
+    "format": "4k",
+    "file_size": 125829120,
+    "content_type": "video/mp4"
+  },
+  "meta": {
+    "rate_limit": {
+      "limit": 1000,
+      "remaining": 998,
+      "reset": 1708117800
+    }
+  }
+}

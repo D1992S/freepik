@@ -29,7 +29,19 @@ export interface Scene {
   search_queries: string[];
   negative_terms: string[];
   intent: string;
+  // Optional overrides of global settings
+  clips_per_scene?: number;
+  min_duration_s?: number;
+  max_duration_s?: number;
+  min_width?: number;
+  min_height?: number;
+  orientation?: 'landscape' | 'portrait' | 'square';
 }
+
+// Alias for Scene with all merged settings (for scoring/filtering)
+export type SceneDefinition = Scene & {
+  description?: string; // Computed from excerpt or label
+};
 
 export interface ValidationError {
   path: string;
