@@ -5,6 +5,7 @@ node_modules/
 dist/
 out/
 coverage/
+release/
 
 # local env/secrets
 .env

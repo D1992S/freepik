@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
+    />
+    <title>StockBot - Freepik Video Downloader</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header class="header">
+        <h1>🎬 StockBot</h1>
+        <p>Automated Freepik Video Downloader</p>
+      </header>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Settings Panel -->
+        <section class="panel settings-panel">
+          <h2>⚙️ Settings</h2>
+          <div class="form-group">
+            <label for="api-key">Freepik API Key:</label>
+            <input
+              type="password"
+              id="api-key"
+              placeholder="Enter your API key"
+              autocomplete="off"
+            />
+          </div>
+          <div class="form-group">
+            <label for="output-dir">Output Directory:</label>
+            <div class="input-button-group">
+              <input type="text" id="output-dir" readonly />
+              <button id="select-output-btn" class="btn btn-secondary">Browse...</button>
+            </div>
+          </div>
+          <button id="save-settings-btn" class="btn btn-primary">Save Settings</button>
+        </section>
+
+        <!-- Stock Plan Panel -->
+        <section class="panel stockplan-panel">
+          <h2>📄 Stock Plan</h2>
+          <div class="dropzone" id="dropzone">
+            <div class="dropzone-content">
+              <p>📁 Drop stockplan.json here or</p>
+              <button id="select-file-btn" class="btn btn-primary">Select File</button>
+            </div>
+          </div>
+          <div id="file-info" class="file-info hidden">
+            <p><strong>File:</strong> <span id="file-name"></span></p>
+            <p><strong>Scenes:</strong> <span id="scenes-count"></span></p>
+            <p><strong>Total clips target:</strong> <span id="clips-count"></span></p>
+          </div>
+        </section>
+
+        <!-- Actions Panel -->
+        <section class="panel actions-panel">
+          <h2>🚀 Actions</h2>
+          <div class="action-buttons">
+            <button id="run-search-btn" class="btn btn-success" disabled>
+              🔍 Search Videos
+            </button>
+            <button id="run-download-btn" class="btn btn-success" disabled>
+              ⬇️ Download Videos
+            </button>
+            <button id="open-folder-btn" class="btn btn-secondary" disabled>
+              📂 Open Output Folder
+            </button>
+          </div>
+        </section>
+
+        <!-- Progress Panel -->
+        <section class="panel progress-panel hidden" id="progress-panel">
+          <h2>⏳ Progress</h2>
+          <div id="progress-content">
+            <div class="progress-bar">
+              <div id="progress-bar-fill" class="progress-bar-fill"></div>
+            </div>
+            <p id="progress-text"></p>
+          </div>
+        </section>
+
+        <!-- Results Panel -->
+        <section class="panel results-panel hidden" id="results-panel">
+          <h2>📊 Results</h2>
+          <div id="results-content"></div>
+        </section>
+
+        <!-- Log Panel -->
+        <section class="panel log-panel">
+          <h2>📝 Log</h2>
+          <div id="log-content" class="log-content"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>
