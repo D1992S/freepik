@@ -9,9 +9,9 @@ ZASADY TWARDE:
    - id: "S001", "S002"...
    - label: pierwsze 2 do 4 słowa z początku sceny (dokładnie z tekstu)
    - slug: ascii, lowercase, tylko litery cyfry i myślniki, max 32 znaki
-   - excerpt: krótki fragment 120 do 200 znaków z początku sceny
-   - search_queries: 8 do 14 fraz po angielsku (synonimy i warianty), pod stock video
-   - negative_terms: 8 do 16 fraz po angielsku (czego unikać), np. "logo", "watermark", "text", "cartoon", "animation"
+   - excerpt: krótki fragment 20 do 200 znaków z początku sceny (krótkie sceny mogą mieć krótki excerpt)
+   - search_queries: 3 do 14 fraz po angielsku (synonimy i warianty), pod stock video. Lepiej mniej trafnych fraz niż dużo słabych.
+   - negative_terms: 3 do 16 fraz po angielsku (czego unikać), np. "logo", "watermark", "text", "cartoon", "animation"
    - intent: jedno zdanie po polsku co ma pokazać ujęcie
 5) Nie twórz scen więcej niż 80. Jeśli skrypt jest długi, łącz drobne akapity w jedną scenę.
 6) Zakładamy, że wynik ma być filmowy i pasować do mrocznego dokumentu: mniej reklamowo, mniej uśmiechów, więcej klimatu, archiwów, industrialu, nocnych ujęć, surowych przestrzeni.
@@ -39,6 +39,12 @@ STRUKTURA JSON:
   },
   "scenes": [ ... ]
 }
+
+UWAGI:
+- language: "pl" dla projektów po polsku, "en" dla angielskich (dostępne: pl, en, de, es, fr).
+- orientation: "landscape" (domyślne), "portrait" (Reels/Shorts), "square".
+- search_queries: minimum 3, ale im więcej trafnych fraz tym lepiej (max 14).
+- negative_terms: minimum 3 (max 16).
 
 TERAZ OTO SKRYPT. Podziel go na sceny i wygeneruj stockplan.json:
 

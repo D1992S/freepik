@@ -1,4 +1,4 @@
-Budujesz aplikację desktop (Windows) do automatycznego wyszukiwania i pobierania stock VIDEO z Freepik na podstawie pliku stockplan.json.
+Budujesz aplikację desktop (cross-platform) do automatycznego wyszukiwania i pobierania stock VIDEO z Freepik na podstawie pliku stockplan.json.
 
 Twarde zasady pracy:
 1) Najpierw przeczytaj: /docs/STATUS.md, /docs/ARCHITECTURE.md, /docs/WORKFLOW_FOR_AI.md oraz ostatnie ADR w /docs/DECISIONS/.
@@ -16,21 +16,28 @@ Wymagania produktu:
 - Musi tworzyć foldery scen 001, 002 itd, pobierać pliki i nazywać je czytelnie: 001_slug__freepik_id__a.mp4.
 - Musi zapisywać candidates.json, selection.json, run-log.jsonl, errors.jsonl.
 
+Scoring deterministyczny (ADR-0002):
+- Hard filters: typ=video, duration w zakresie, rozdzielczość minimalna, negative terms exclusion.
+- Scoring: resolution 40% (preferuj 4K), duration_fit 25%, relevance 25%, recency 10%.
+- Tie-breaker: resource ID rosnąco.
+- Szczegóły w docs/DECISIONS/ADR-0002-scoring-algorithm.md.
+
 Stos technologiczny:
 - Node.js + TypeScript
 - Vitest (unit tests)
 - Mockowanie HTTP (np. nock)
-- Docelowo Electron UI, ale pipeline najpierw działa jako CLI.
+- Docelowo Electron/Tauri UI, ale pipeline najpierw działa jako CLI.
 
 Fazy do implementacji w kolejności:
 Faza 0: repo scaffold, lint/format/test, CI, docs skeleton.
+Faza 0.5: spike — jeden prawdziwy call do Freepik API, zapis response jako fixture, walidacja założeń.
 Faza 1: stockplan.schema.json + walidator + prompt builder screen (może być na razie CLI print).
-Faza 2: FreepikClient (search videos, download, caching, rate limit, retry) + integration tests na mockach.
-Faza 3: SearchRunner i deterministyczny wybór wyników, zapis candidates/selection.
-Faza 4: DownloadRunner, foldery, nazwy plików, scene.json per scena.
-Faza 5: resume, lockfile, idempotencja, error journal.
-Faza 6: Electron UI minimal.
-Faza 7: packaging Windows portable.
+Faza 2: FreepikClient (search videos, download, caching TTL 24h, rate limit, retry exponential backoff) + integration tests na mockach.
+Faza 3: SearchRunner i deterministyczny wybór wyników, zapis candidates/selection inkrementalnie (po każdej scenie). Tryb --dry-run z preview thumbnails.
+Faza 4: DownloadRunner, foldery, nazwy plików, scene.json per scena. Concurrent downloads (semaphore, domyślnie 3). Disk space check.
+Faza 5: resume, lockfile, idempotencja, error journal. Graceful shutdown (SIGINT). Obsługa scen unfulfilled/partial.
+Faza 6: desktop UI minimal (rozważ Tauri vs Electron).
+Faza 7: packaging cross-platform (Windows EXE + macOS .app + Linux AppImage).
 
 Teraz zrób Faza 0 jako pierwszy PR. Dodaj komendy:
 - npm test

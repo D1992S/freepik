@@ -20,6 +20,12 @@
 - Każdy run zapisuje artefakty audytowe do `_meta/`.
 - Retry/backoff/rate-limit/resume są obowiązkowe.
 
+## Zasady dodatkowe
+- **Spike przed pipeline**: przed implementacją klienta API (Faza 2) wykonaj spike z prawdziwym Freepik API. Zapisz odpowiedź jako fixture i zweryfikuj założenia schemy/scoringu.
+- **Checkpoint po każdej scenie**: od Fazy 3 zapisuj `_meta/candidates.json` i `_meta/selection.json` inkrementalnie (po każdej przetworzonej scenie), nie na koniec runu. To umożliwia resume.
+- **Dry-run first**: nowe funkcje pipeline'u testuj najpierw w trybie `--dry-run` zanim dodasz auto-download.
+- **Fixtures z prawdziwego API**: testy integracyjne powinny korzystać z fixtures zapisanych podczas spike'a (zanonimizowanych jeśli potrzeba).
+
 ## Definition of Done per task
 - Kod + testy + docs + status aktualne.
 - Brak sekretów i danych wrażliwych w repo.
