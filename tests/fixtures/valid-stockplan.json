@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "project": {
+    "title": "Test Video Project",
+    "language": "en",
+    "created_at": "2024-02-16",
+    "notes": "This is a test project for validating the stockplan schema."
+  },
+  "global": {
+    "asset_type": "video",
+    "orientation": "landscape",
+    "clips_per_scene": 2,
+    "max_candidates_per_scene": 20,
+    "min_duration_s": 5,
+    "max_duration_s": 30,
+    "min_width": 1920,
+    "min_height": 1080,
+    "format_preference": ["mp4", "webm"]
+  },
+  "scenes": [
+    {
+      "order": 1,
+      "id": "S001",
+      "label": "Opening scene with nature",
+      "slug": "opening-nature",
+      "excerpt": "A beautiful landscape scene to open the video with natural elements.",
+      "search_queries": [
+        "mountain landscape sunset",
+        "nature scenery aerial",
+        "forest mountain view"
+      ],
+      "negative_terms": ["people", "city", "urban"],
+      "intent": "Set a calm, natural tone for the video opening"
+    },
+    {
+      "order": 2,
+      "id": "S002",
+      "label": "Technology workspace",
+      "slug": "tech-workspace",
+      "excerpt": "Modern office environment with technology and productivity focus.",
+      "search_queries": [
+        "modern office workspace",
+        "laptop coding developer",
+        "tech startup office"
+      ],
+      "negative_terms": ["nature", "outdoor", "landscape"],
+      "intent": "Show a professional technology work environment"
+    }
+  ]
+}

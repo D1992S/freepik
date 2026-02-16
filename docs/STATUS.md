@@ -13,19 +13,42 @@
   - Poluzowanie schemy: multi-language, orientacja portrait/square, mniej wymaganych query/terms.
   - Roadmap: spike API (Faza 0.5), dry-run, concurrency, cross-platform packaging.
   - Architektura: sekcje scoring, cache, error handling, concurrency, progress reporting.
+- ✅ **Faza 0 — Fundament repo** (UKOŃCZONA):
+  - Node.js + TypeScript scaffold z pełną konfiguracją.
+  - ESLint + Prettier + Vitest.
+  - `.env.example`, `.gitignore` (już wcześniej).
+  - CLI: `stockbot --help`, `validate`, `build-prompt`.
+- ✅ **Faza 1 — StockPlan schema i walidacja** (UKOŃCZONA):
+  - `src/schemas/stockplan.schema.json` — pełna JSON Schema.
+  - Walidator Ajv z czytelnymi błędami (`src/validator/stockplan-validator.ts`).
+  - Prompt builder — CLI output formatujący stockplan (`src/prompt-builder/prompt-builder.ts`).
+  - Testy jednostkowe dla walidatora i prompt buildera (12 testów passing).
 
 ## Czego jeszcze NIE ma
-- ❌ Implementacji aplikacji (CLI / desktop UI).
-- ❌ Testów uruchamialnych (`npm test`, `npm run lint`, `npm run stockbot -- --help`).
-- ❌ Integracji z Freepik API w kodzie.
-- ❌ Spike API (weryfikacja rzeczywistych odpowiedzi Freepik).
+- ❌ Integracji z Freepik API w kodzie (Faza 2).
+- ❌ Spike API (weryfikacja rzeczywistych odpowiedzi Freepik) — Faza 0.5.
+- ❌ Search pipeline i scoring (Faza 3).
+- ❌ Download manager (Faza 4).
+- ❌ Resume i odporność (Faza 5).
 
 ## Jak uruchomić ten stan repo
-To repo jest na etapie planowania i dokumentacji.
-Nie ma jeszcze kodu wykonującego pipeline.
+```bash
+npm install           # Instalacja zależności
+npm test              # Uruchomienie testów (12 passing)
+npm run lint          # Linting kodu
+npm run build         # Kompilacja TypeScript
+npm run dev -- --help # CLI help
+
+# Przykłady użycia CLI:
+npm run dev -- validate tests/fixtures/valid-stockplan.json
+npm run dev -- build-prompt tests/fixtures/valid-stockplan.json
+npm run dev -- build-prompt tests/fixtures/valid-stockplan.json -o output.txt
+```
 
 ## Ostatnia dobra komenda kontrolna
-`git status --short`
+```bash
+npm test && npm run lint && npm run build
+```
 
 ## Następny krok (1 zdanie)
-Zacząć Fazę 0: scaffold Node.js + TypeScript + Vitest + ESLint + Prettier + minimalny CLI `stockbot --help`, a następnie Fazę 0.5: spike z prawdziwym Freepik API.
+Faza 0.5: spike z prawdziwym Freepik API — jeden prawdziwy call do API (search video + download info), zapis fixture, analiza response, walidacja założeń schemy i scoringu.
