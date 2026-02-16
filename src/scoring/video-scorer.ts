@@ -29,7 +29,8 @@ export class VideoScorer {
       recency: this.scoreRecency(resource),
     };
 
-    const score = breakdown.resolution + breakdown.durationFit + breakdown.relevance + breakdown.recency;
+    const score =
+      breakdown.resolution + breakdown.durationFit + breakdown.relevance + breakdown.recency;
 
     return { resource, score, breakdown };
   }
@@ -140,10 +141,7 @@ export class VideoScorer {
     // Duration constraints
     const minDuration = scene.min_duration_s ?? 0;
     const maxDuration = scene.max_duration_s ?? Infinity;
-    if (
-      resource.video_info.duration < minDuration ||
-      resource.video_info.duration > maxDuration
-    ) {
+    if (resource.video_info.duration < minDuration || resource.video_info.duration > maxDuration) {
       return false;
     }
 

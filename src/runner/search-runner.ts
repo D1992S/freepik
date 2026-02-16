@@ -62,7 +62,7 @@ export interface SearchRunnerConfig {
 export class SearchRunner {
   constructor(
     private client: FreepikClient,
-    private config: SearchRunnerConfig,
+    private config: SearchRunnerConfig
   ) {}
 
   /**
@@ -93,7 +93,7 @@ export class SearchRunner {
       // Select top clips
       const sceneSelection = this.selectTopClips(
         sceneCandidates,
-        scene.clips_per_scene ?? stockPlan.global?.clips_per_scene ?? 3,
+        scene.clips_per_scene ?? stockPlan.global?.clips_per_scene ?? 3
       );
       results.selection.push(sceneSelection);
 
@@ -138,7 +138,7 @@ export class SearchRunner {
             `Search failed for query: ${query}`,
             undefined,
             '/resources',
-            { scene_slug: scene.slug, query },
+            { scene_slug: scene.slug, query }
           );
         }
       }
@@ -238,13 +238,13 @@ export class SearchRunner {
     await fs.writeFile(
       path.join(metaDir, 'candidates.json'),
       JSON.stringify(results.candidates, null, 2),
-      'utf-8',
+      'utf-8'
     );
 
     await fs.writeFile(
       path.join(metaDir, 'selection.json'),
       JSON.stringify(results.selection, null, 2),
-      'utf-8',
+      'utf-8'
     );
   }
 }

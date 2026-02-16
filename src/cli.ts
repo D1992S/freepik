@@ -8,7 +8,7 @@ import {
 } from './validator/stockplan-validator.js';
 import { buildPrompt, buildCompactSummary } from './prompt-builder/prompt-builder.js';
 import { FreepikClient } from './client/freepik-client.js';
-import { SearchRunner } from './runner/search-runner.js';
+import { SearchRunner, type SceneSelection } from './runner/search-runner.js';
 import { DownloadRunner } from './runner/download-runner.js';
 import { ErrorLogger } from './utils/error-logger.js';
 import { Lockfile } from './utils/lockfile.js';
@@ -105,7 +105,7 @@ program
       // Acquire lock
       await lockfile.acquire('search');
     } catch (error) {
-      console.error(`❌ ${error instanceof Error ? error.message : error}`);
+      console.error(`❌ ${error instanceof Error ? error.message : String(error)}`);
       process.exit(1);
     }
 
@@ -121,7 +121,7 @@ program
     });
 
     // Setup graceful shutdown
-    lockfile.onShutdown(async () => {
+    lockfile.onShutdown(() => {
       console.log('Saving checkpoint...');
     });
 
@@ -138,13 +138,11 @@ program
       console.log('Summary:');
       console.log(`  - Total scenes: ${results.selection.length}`);
       console.log(
-        `  - Fulfilled: ${results.selection.filter((s) => s.status === 'fulfilled').length}`,
+        `  - Fulfilled: ${results.selection.filter((s) => s.status === 'fulfilled').length}`
       );
+      console.log(`  - Partial: ${results.selection.filter((s) => s.status === 'partial').length}`);
       console.log(
-        `  - Partial: ${results.selection.filter((s) => s.status === 'partial').length}`,
-      );
-      console.log(
-        `  - Unfulfilled: ${results.selection.filter((s) => s.status === 'unfulfilled').length}`,
+        `  - Unfulfilled: ${results.selection.filter((s) => s.status === 'unfulfilled').length}`
       );
       console.log('');
       console.log(`Results saved to: ${options.output}/_meta/`);
@@ -183,9 +181,9 @@ program
 
     // Load selection.json
     const selectionPath = `${options.output}/_meta/selection.json`;
-    let selection;
+    let selection: SceneSelection[];
     try {
-      selection = JSON.parse(readFileSync(selectionPath, 'utf-8'));
+      selection = JSON.parse(readFileSync(selectionPath, 'utf-8')) as SceneSelection[];
     } catch (error) {
       console.error('❌ Failed to load selection.json');
       console.error('   Run the search command first to generate selection.json');
@@ -208,7 +206,7 @@ program
       // Acquire lock
       await lockfile.acquire('download');
     } catch (error) {
-      console.error(`❌ ${error instanceof Error ? error.message : error}`);
+      console.error(`❌ ${error instanceof Error ? error.message : String(error)}`);
       process.exit(1);
     }
 
@@ -220,13 +218,13 @@ program
       errorLogger,
       progressCallback: (progress) => {
         console.log(
-          `[${progress.completedFiles}/${progress.totalFiles}] ${progress.currentScene}: ${progress.currentFile}`,
+          `[${progress.completedFiles}/${progress.totalFiles}] ${progress.currentScene}: ${progress.currentFile}`
         );
       },
     });
 
     // Setup graceful shutdown
-    lockfile.onShutdown(async () => {
+    lockfile.onShutdown(() => {
       console.log('Finishing current download...');
     });
 

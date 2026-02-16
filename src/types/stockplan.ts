@@ -41,7 +41,7 @@ export interface Scene {
 // Alias for Scene with all merged settings (for scoring/filtering)
 export type SceneDefinition = Scene & {
   description?: string; // Computed from excerpt or label
-}
+};
 
 export interface ValidationError {
   path: string;

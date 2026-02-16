@@ -16,7 +16,7 @@ export class FreepikApiError extends Error {
   constructor(
     message: string,
     public statusCode?: number,
-    public rateLimit?: FreepikRateLimit,
+    public rateLimit?: FreepikRateLimit
   ) {
     super(message);
     this.name = 'FreepikApiError';
@@ -38,9 +38,7 @@ export class FreepikClient {
     this.retryDelays = config.retryDelays ?? [1000, 2000, 4000, 8000, 16000];
 
     this.cache =
-      config.cacheEnabled !== false
-        ? new ApiCache(config.cacheTtlMs, config.cacheMaxSizeMb)
-        : null;
+      config.cacheEnabled !== false ? new ApiCache(config.cacheTtlMs, config.cacheMaxSizeMb) : null;
   }
 
   /**
@@ -125,10 +123,7 @@ export class FreepikClient {
   /**
    * Make HTTP request with retry and rate limit handling
    */
-  private async makeRequest<T>(
-    endpoint: string,
-    params?: Record<string, string>,
-  ): Promise<T> {
+  private async makeRequest<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
     const url = new URL(`${this.baseUrl}${endpoint}`);
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -142,14 +137,15 @@ export class FreepikClient {
       try {
         // Wait before retry (except first attempt)
         if (attempt > 0) {
-          const delay = this.retryDelays[attempt - 1] ?? this.retryDelays[this.retryDelays.length - 1];
+          const delay =
+            this.retryDelays[attempt - 1] ?? this.retryDelays[this.retryDelays.length - 1];
           await this.sleep(delay);
         }
 
         const response = await fetch(url.toString(), {
           headers: {
             'x-freepik-api-key': this.apiKey,
-            'Accept': 'application/json',
+            Accept: 'application/json',
           },
         });
 
@@ -166,11 +162,7 @@ export class FreepikClient {
             continue;
           }
 
-          throw new FreepikApiError(
-            'Rate limit exceeded',
-            429,
-            this.currentRateLimit ?? undefined,
-          );
+          throw new FreepikApiError('Rate limit exceeded', 429, this.currentRateLimit ?? undefined);
         }
 
         // Handle errors
@@ -178,7 +170,7 @@ export class FreepikClient {
           const errorText = await response.text();
           throw new FreepikApiError(
             `API request failed: ${response.status} ${response.statusText}\n${errorText}`,
-            response.status,
+            response.status
           );
         }
 
@@ -206,7 +198,7 @@ export class FreepikClient {
     throw new FreepikApiError(
       `API request failed after ${this.maxRetries + 1} attempts: ${lastError?.message}`,
       undefined,
-      this.currentRateLimit ?? undefined,
+      this.currentRateLimit ?? undefined
     );
   }
 

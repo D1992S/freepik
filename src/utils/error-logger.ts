@@ -54,7 +54,7 @@ export class ErrorLogger {
     message: string,
     statusCode?: number,
     endpoint?: string,
-    context?: ErrorLogEntry['context'],
+    context?: ErrorLogEntry['context']
   ): Promise<void> {
     await this.log({
       error_type: 'api_error',
@@ -74,7 +74,7 @@ export class ErrorLogger {
     message: string,
     resourceId: string,
     sceneSlug: string,
-    stack?: string,
+    stack?: string
   ): Promise<void> {
     await this.log({
       error_type: 'download_error',
@@ -107,7 +107,7 @@ export class ErrorLogger {
       return content
         .split('\n')
         .filter((line) => line.trim())
-        .map((line) => JSON.parse(line));
+        .map((line) => JSON.parse(line) as ErrorLogEntry);
     } catch (error) {
       return [];
     }

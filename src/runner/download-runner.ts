@@ -47,7 +47,7 @@ export class DownloadRunner {
 
   constructor(
     private client: FreepikClient,
-    private config: DownloadRunnerConfig,
+    private config: DownloadRunnerConfig
   ) {
     this.maxConcurrent = config.maxConcurrent ?? 3;
     this.semaphore = this.maxConcurrent;
@@ -89,7 +89,7 @@ export class DownloadRunner {
             scene.slug,
             selected.resource_id,
             selected.rank,
-            selected.download_format,
+            selected.download_format
           );
 
           if (this.config.progressCallback) {
@@ -123,7 +123,7 @@ export class DownloadRunner {
             const fileSize = await this.downloadVideo(
               selected.resource_id,
               selected.download_format,
-              filePath,
+              filePath
             );
 
             downloads.push({
@@ -174,7 +174,7 @@ export class DownloadRunner {
   private async downloadVideo(
     resourceId: string,
     format: string,
-    outputPath: string,
+    outputPath: string
   ): Promise<number> {
     // Get download URL
     const downloadInfo = await this.client.getDownloadUrl(resourceId, format);
@@ -210,7 +210,7 @@ export class DownloadRunner {
     slug: string,
     resourceId: string,
     rank: number,
-    format: string,
+    format: string
   ): string {
     const orderPadded = String(order).padStart(3, '0');
     const rankLetter = String.fromCharCode(96 + rank); // 1='a', 2='b', etc.
@@ -248,7 +248,7 @@ export class DownloadRunner {
     try {
       await fs.mkdir(this.config.outputDir, { recursive: true });
     } catch (error) {
-      throw new Error(`Cannot create output directory: ${error}`);
+      throw new Error(`Cannot create output directory: ${String(error)}`);
     }
   }
 

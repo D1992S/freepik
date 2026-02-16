@@ -32,7 +32,7 @@ export class Lockfile {
       const lockInfo = await this.read();
       throw new Error(
         `Another process is running (PID ${lockInfo.pid}, started ${lockInfo.started_at}).\n` +
-          `If the process is not running, delete ${this.lockPath}`,
+          `If the process is not running, delete ${this.lockPath}`
       );
     }
 
@@ -92,13 +92,13 @@ export class Lockfile {
    */
   async read(): Promise<LockInfo> {
     const content = await fs.readFile(this.lockPath, 'utf-8');
-    return JSON.parse(content);
+    return JSON.parse(content) as LockInfo;
   }
 
   /**
    * Register cleanup handler (called on graceful shutdown)
    */
-  onShutdown(handler: () => Promise<void>): void {
+  onShutdown(handler: () => void | Promise<void>): void {
     this.cleanupHandlers.push(handler);
   }
 
@@ -109,35 +109,37 @@ export class Lockfile {
     const signals: NodeJS.Signals[] = ['SIGINT', 'SIGTERM'];
 
     for (const signal of signals) {
-      process.on(signal, async () => {
-        if (this.shutdownInProgress) {
-          console.log('\nForce exit...');
-          process.exit(1);
-        }
-
-        this.shutdownInProgress = true;
-
-        console.log(`\n\n⚠️  Received ${signal}, shutting down gracefully...`);
-        console.log('Press Ctrl+C again to force exit.');
-
-        try {
-          // Update lock status
-          await this.updateStatus('interrupted');
-
-          // Run cleanup handlers
-          for (const handler of this.cleanupHandlers) {
-            await handler();
+      process.on(signal, () => {
+        void (async () => {
+          if (this.shutdownInProgress) {
+            console.log('\nForce exit...');
+            process.exit(1);
           }
 
-          // Release lock
-          await this.release();
+          this.shutdownInProgress = true;
 
-          console.log('✅ Shutdown complete.');
-          process.exit(0);
-        } catch (error) {
-          console.error('❌ Error during shutdown:', error);
-          process.exit(1);
-        }
+          console.log(`\n\n⚠️  Received ${signal}, shutting down gracefully...`);
+          console.log('Press Ctrl+C again to force exit.');
+
+          try {
+            // Update lock status
+            await this.updateStatus('interrupted');
+
+            // Run cleanup handlers
+            for (const handler of this.cleanupHandlers) {
+              await handler();
+            }
+
+            // Release lock
+            await this.release();
+
+            console.log('✅ Shutdown complete.');
+            process.exit(0);
+          } catch (error) {
+            console.error('❌ Error during shutdown:', error);
+            process.exit(1);
+          }
+        })();
       });
     }
   }
