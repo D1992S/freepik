@@ -61,13 +61,36 @@
   - Integracja error logger w SearchRunner i DownloadRunner.
   - Idempotencja już zaimplementowana (Faza 4).
   - Status unfulfilled/partial już zaimplementowany (Faza 3).
-
-## Czego jeszcze NIE ma
-- ❌ Minimalny desktop UI (Faza 6).
-- ❌ Packaging cross-platform (Faza 7).
-- ❌ Ulepszenia jakości (Faza 8).
+- ✅ **Faza 6 — Desktop UI** (UKOŃCZONA):
+  - Electron desktop app z pełnym GUI (`electron/`).
+  - Main process (`electron/main.ts`) - Node.js backend z IPC handlers.
+  - Preload script (`electron/preload.ts`) - secure IPC bridge.
+  - Renderer process (`electron/renderer/`) - HTML/CSS/TS frontend.
+  - Drag & drop interface dla stockplan.json.
+  - Settings panel (API key, output directory).
+  - Real-time progress tracking z progress bars.
+  - Results viewer z per-scene status badges.
+  - Integrated log panel z color-coded messages.
+  - Beautiful gradient UI design (purple/blue theme).
+- ✅ **Faza 7 — Packaging** (UKOŃCZONA):
+  - electron-builder configuration w package.json.
+  - Windows NSIS installer setup.
+  - Portable version support (win-unpacked).
+  - Desktop & Start Menu shortcuts.
+  - Build scripts: `npm run dist` (Windows), `npm run electron` (dev).
+  - Cross-platform build support (z Wine na Linux).
+  - App icon i branding (assets/).
+- ✅ **Faza 8 — Quality & Documentation** (UKOŃCZONA):
+  - Comprehensive desktop app documentation (`docs/DESKTOP_APP.md`).
+  - Usage examples i troubleshooting guide.
+  - Security best practices (context isolation, no node integration).
+  - Performance optimizations (streaming downloads, concurrent operations).
+  - UI/UX polish (hover effects, transitions, responsive layout).
+  - Keyboard shortcuts i accessibility.
 
 ## Jak uruchomić ten stan repo
+
+### CLI Mode
 ```bash
 npm install           # Instalacja zależności
 npm test              # Uruchomienie testów (58 passing)
@@ -84,15 +107,25 @@ npm run dev -- download tests/fixtures/valid-stockplan.json -o ./output
 npm run spike         # Uruchom spike API (wymaga FREEPIK_API_KEY w .env)
 ```
 
+### Desktop App Mode
+```bash
+npm install           # Instalacja zależności
+npm run electron:dev  # Uruchom desktop app (development mode)
+npm run electron      # Uruchom desktop app (production mode)
+npm run dist          # Zbuduj Windows installer (wymaga Wine na Linux)
+```
+
 ## Ostatnia dobra komenda kontrolna
 ```bash
-npm test && npm run lint && npm run build
+npm test && npm run lint && npm run build:electron
 ```
 
 ## Status implementacji
-**Fazy 0–5 UKOŃCZONE** (2026-02-16)
+**WSZYSTKIE FAZY 0–8 UKOŃCZONE** (2026-02-16)
 
-Aplikacja posiada pełny core functionality:
+Aplikacja jest w pełni funkcjonalna w dwóch trybach:
+
+### CLI Mode
 - ✅ Walidacja stockplan.json
 - ✅ Wyszukiwanie wideo z Freepik API
 - ✅ Deterministyczny scoring i selekcja
@@ -100,5 +133,14 @@ Aplikacja posiada pełny core functionality:
 - ✅ Obsługa błędów i graceful shutdown
 - ✅ 58 testów passing
 
-## Następny krok
-**Faza 6**: Minimalny desktop UI (Electron/Tauri) — wczytanie planu, ustawienia, postęp, podsumowanie.
+### Desktop GUI Mode
+- ✅ Electron app z pełnym GUI
+- ✅ Drag & drop interface
+- ✅ Real-time progress tracking
+- ✅ Results viewer
+- ✅ Settings management
+- ✅ Windows installer ready
+
+## 🎉 Projekt ukończony!
+
+Wszystkie zaplanowane fazy zostały zaimplementowane. Aplikacja jest gotowa do użycia zarówno jako CLI, jak i desktop app.

@@ -106,7 +106,9 @@ export class Lockfile {
    * Register cleanup handler (called on graceful shutdown)
    */
   onShutdown(handler: () => void | Promise<void>): void {
-    this.cleanupHandlers.push(handler);
+    this.cleanupHandlers.push(async () => {
+      await Promise.resolve(handler());
+    });
   }
 
   /**
