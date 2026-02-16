@@ -1,0 +1,133 @@
+{
+  "data": [
+    {
+      "id": "123456789",
+      "title": "Beautiful mountain sunset landscape with golden hour lighting",
+      "content_type": "video",
+      "description": "Stunning 4K aerial view of mountain peaks during sunset with dramatic clouds",
+      "tags": ["mountain", "sunset", "landscape", "nature", "aerial", "4k", "cinematic"],
+      "author": {
+        "id": "author123",
+        "name": "John Videographer"
+      },
+      "thumbnail": {
+        "url": "https://img.freepik.com/free-video/thumbnail.jpg",
+        "width": 1920,
+        "height": 1080
+      },
+      "video_info": {
+        "duration": 15.5,
+        "width": 3840,
+        "height": 2160,
+        "fps": 30,
+        "codec": "h264",
+        "formats": [
+          {
+            "quality": "4k",
+            "width": 3840,
+            "height": 2160,
+            "file_size": 125829120
+          },
+          {
+            "quality": "1080p",
+            "width": 1920,
+            "height": 1080,
+            "file_size": 31457280
+          }
+        ]
+      },
+      "created_at": "2025-12-15T10:30:00Z",
+      "updated_at": "2025-12-15T10:30:00Z",
+      "premium": false,
+      "orientation": "landscape"
+    },
+    {
+      "id": "987654321",
+      "title": "Mountain landscape timelapse at sunset",
+      "content_type": "video",
+      "description": "Time-lapse of mountain sunset with moving clouds",
+      "tags": ["mountain", "sunset", "timelapse", "landscape", "clouds"],
+      "author": {
+        "id": "author456",
+        "name": "Jane Creator"
+      },
+      "thumbnail": {
+        "url": "https://img.freepik.com/free-video/thumbnail2.jpg",
+        "width": 1920,
+        "height": 1080
+      },
+      "video_info": {
+        "duration": 8.2,
+        "width": 1920,
+        "height": 1080,
+        "fps": 24,
+        "codec": "h264",
+        "formats": [
+          {
+            "quality": "1080p",
+            "width": 1920,
+            "height": 1080,
+            "file_size": 18874368
+          }
+        ]
+      },
+      "created_at": "2025-11-20T14:22:00Z",
+      "updated_at": "2025-11-20T14:22:00Z",
+      "premium": true,
+      "orientation": "landscape"
+    },
+    {
+      "id": "555666777",
+      "title": "Drone footage of sunset over mountain range",
+      "content_type": "video",
+      "description": "Cinematic drone shot flying over mountains at golden hour",
+      "tags": ["drone", "mountain", "sunset", "aerial", "cinematic", "nature"],
+      "author": {
+        "id": "author789",
+        "name": "Drone Pilot Pro"
+      },
+      "thumbnail": {
+        "url": "https://img.freepik.com/free-video/thumbnail3.jpg",
+        "width": 1920,
+        "height": 1080
+      },
+      "video_info": {
+        "duration": 22.8,
+        "width": 2560,
+        "height": 1440,
+        "fps": 60,
+        "codec": "h264",
+        "formats": [
+          {
+            "quality": "1440p",
+            "width": 2560,
+            "height": 1440,
+            "file_size": 78643200
+          },
+          {
+            "quality": "1080p",
+            "width": 1920,
+            "height": 1080,
+            "file_size": 44236800
+          }
+        ]
+      },
+      "created_at": "2026-01-10T08:15:00Z",
+      "updated_at": "2026-01-10T08:15:00Z",
+      "premium": false,
+      "orientation": "landscape"
+    }
+  ],
+  "meta": {
+    "total": 1247,
+    "page": 1,
+    "per_page": 10,
+    "pages": 125
+  },
+  "links": {
+    "self": "https://api.freepik.com/v1/resources?term=mountain+sunset+landscape&page=1",
+    "first": "https://api.freepik.com/v1/resources?term=mountain+sunset+landscape&page=1",
+    "last": "https://api.freepik.com/v1/resources?term=mountain+sunset+landscape&page=125",
+    "next": "https://api.freepik.com/v1/resources?term=mountain+sunset+landscape&page=2"
+  }
+}
