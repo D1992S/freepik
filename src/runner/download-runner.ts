@@ -199,7 +199,7 @@ export class DownloadRunner {
 
     // Stream response directly to disk to avoid OOM on large files
     const fileStream = fsSync.createWriteStream(outputPath);
-    const readableStream = Readable.fromWeb(response.body as any);
+    const readableStream = Readable.fromWeb(response.body);
 
     await finished(readableStream.pipe(fileStream));
 
