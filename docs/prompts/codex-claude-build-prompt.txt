@@ -1,0 +1,39 @@
+Budujesz aplikację desktop (Windows) do automatycznego wyszukiwania i pobierania stock VIDEO z Freepik na podstawie pliku stockplan.json.
+
+Twarde zasady pracy:
+1) Najpierw przeczytaj: /docs/STATUS.md, /docs/ARCHITECTURE.md, /docs/WORKFLOW_FOR_AI.md oraz ostatnie ADR w /docs/DECISIONS/.
+2) Zanim zmienisz kod: uruchom testy i opisz wynik w PR.
+3) Implementuj tylko jedną fazę lub jeden task na PR.
+4) Po zakończeniu: zaktualizuj /docs/STATUS.md (co działa, jak uruchomić, następny krok).
+5) Jeśli zmieniłeś decyzję architektury: dopisz ADR.
+
+Wymagania produktu:
+- Aplikacja NIE ma wbudowanego AI. Nie używa OpenAI.
+- Użytkownik generuje stockplan.json poza aplikacją (np. w ChatGPT) i wczytuje go do aplikacji.
+- Aplikacja waliduje stockplan.json (JSON Schema) i odrzuca błędne dane z czytelnym raportem.
+- Aplikacja używa Freepik API z x-freepik-api-key (klucz w .env lub secure storage, nigdy w repo).
+- Musi mieć: dry-run i auto-run, rate limiting, retry/backoff, resume, audyt w _meta/.
+- Musi tworzyć foldery scen 001, 002 itd, pobierać pliki i nazywać je czytelnie: 001_slug__freepik_id__a.mp4.
+- Musi zapisywać candidates.json, selection.json, run-log.jsonl, errors.jsonl.
+
+Stos technologiczny:
+- Node.js + TypeScript
+- Vitest (unit tests)
+- Mockowanie HTTP (np. nock)
+- Docelowo Electron UI, ale pipeline najpierw działa jako CLI.
+
+Fazy do implementacji w kolejności:
+Faza 0: repo scaffold, lint/format/test, CI, docs skeleton.
+Faza 1: stockplan.schema.json + walidator + prompt builder screen (może być na razie CLI print).
+Faza 2: FreepikClient (search videos, download, caching, rate limit, retry) + integration tests na mockach.
+Faza 3: SearchRunner i deterministyczny wybór wyników, zapis candidates/selection.
+Faza 4: DownloadRunner, foldery, nazwy plików, scene.json per scena.
+Faza 5: resume, lockfile, idempotencja, error journal.
+Faza 6: Electron UI minimal.
+Faza 7: packaging Windows portable.
+
+Teraz zrób Faza 0 jako pierwszy PR. Dodaj komendy:
+- npm test
+- npm run lint
+- npm run stockbot -- --help
+I opisz dokładnie w docs/STATUS.md jak odpalić projekt od zera.

@@ -1,0 +1,23 @@
+# dependencies
+node_modules/
+
+# build artifacts
+dist/
+out/
+coverage/
+
+# local env/secrets
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+
+# runtime output
+_cache/
+_meta/
+
+# OS
+.DS_Store
+Thumbs.db
