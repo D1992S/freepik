@@ -10,6 +10,8 @@ import { buildPrompt, buildCompactSummary } from './prompt-builder/prompt-builde
 import { FreepikClient } from './client/freepik-client.js';
 import { SearchRunner } from './runner/search-runner.js';
 import { DownloadRunner } from './runner/download-runner.js';
+import { ErrorLogger } from './utils/error-logger.js';
+import { Lockfile } from './utils/lockfile.js';
 import { readFileSync } from 'fs';
 
 dotenv.config();
@@ -95,19 +97,40 @@ program
       process.exit(1);
     }
 
+    // Create lockfile and error logger
+    const lockfile = new Lockfile(options.output);
+    const errorLogger = new ErrorLogger(options.output);
+
+    try {
+      // Acquire lock
+      await lockfile.acquire('search');
+    } catch (error) {
+      console.error(`❌ ${error instanceof Error ? error.message : error}`);
+      process.exit(1);
+    }
+
     // Create client and runner
     const client = new FreepikClient({ apiKey });
     const runner = new SearchRunner(client, {
       outputDir: options.output,
       dryRun: options.dryRun,
+      errorLogger,
       progressCallback: (current, total, sceneName) => {
         console.log(`[${current}/${total}] Processing scene: ${sceneName}`);
       },
     });
 
+    // Setup graceful shutdown
+    lockfile.onShutdown(async () => {
+      console.log('Saving checkpoint...');
+    });
+
     try {
       // Run search pipeline
       const results = await runner.run(result.data);
+
+      // Release lock
+      await lockfile.release();
 
       console.log('');
       console.log('✅ Search completed!');
@@ -135,6 +158,7 @@ program
       }
     } catch (error) {
       console.error('❌ Search failed:', error);
+      await lockfile.release();
       process.exit(1);
     }
   });
@@ -176,11 +200,24 @@ program
       process.exit(1);
     }
 
+    // Create lockfile and error logger
+    const lockfile = new Lockfile(options.output);
+    const errorLogger = new ErrorLogger(options.output);
+
+    try {
+      // Acquire lock
+      await lockfile.acquire('download');
+    } catch (error) {
+      console.error(`❌ ${error instanceof Error ? error.message : error}`);
+      process.exit(1);
+    }
+
     // Create client and download runner
     const client = new FreepikClient({ apiKey });
     const runner = new DownloadRunner(client, {
       outputDir: options.output,
       maxConcurrent: parseInt(options.concurrency, 10),
+      errorLogger,
       progressCallback: (progress) => {
         console.log(
           `[${progress.completedFiles}/${progress.totalFiles}] ${progress.currentScene}: ${progress.currentFile}`,
@@ -188,14 +225,23 @@ program
       },
     });
 
+    // Setup graceful shutdown
+    lockfile.onShutdown(async () => {
+      console.log('Finishing current download...');
+    });
+
     try {
       await runner.run(result.data, selection);
+
+      // Release lock
+      await lockfile.release();
 
       console.log('');
       console.log('✅ Download completed!');
       console.log(`   All videos saved to: ${options.output}`);
     } catch (error) {
       console.error('❌ Download failed:', error);
+      await lockfile.release();
       process.exit(1);
     }
   });

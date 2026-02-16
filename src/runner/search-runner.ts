@@ -8,6 +8,7 @@ import * as path from 'path';
 import type { FreepikClient } from '../client/freepik-client.js';
 import type { StockPlan, SceneDefinition } from '../types/stockplan.js';
 import { VideoScorer, type ScoredVideo } from '../scoring/video-scorer.js';
+import type { ErrorLogger } from '../utils/error-logger.js';
 
 export interface SceneCandidates {
   scene_index: number;
@@ -55,6 +56,7 @@ export interface SearchRunnerConfig {
   dryRun?: boolean;
   maxCandidatesPerScene?: number;
   progressCallback?: (current: number, total: number, sceneName: string) => void;
+  errorLogger?: ErrorLogger;
 }
 
 export class SearchRunner {
@@ -131,6 +133,14 @@ export class SearchRunner {
         }
       } catch (error) {
         console.error(`Error searching for "${query}":`, error);
+        if (this.config.errorLogger) {
+          await this.config.errorLogger.logApiError(
+            `Search failed for query: ${query}`,
+            undefined,
+            '/resources',
+            { scene_slug: scene.slug, query },
+          );
+        }
       }
     }
 

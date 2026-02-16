@@ -8,6 +8,7 @@ import * as path from 'path';
 import type { FreepikClient } from '../client/freepik-client.js';
 import type { SceneSelection } from './search-runner.js';
 import type { StockPlan } from '../types/stockplan.js';
+import type { ErrorLogger } from '../utils/error-logger.js';
 
 export interface SceneManifest {
   scene_index: number;
@@ -37,6 +38,7 @@ export interface DownloadRunnerConfig {
   outputDir: string;
   maxConcurrent?: number;
   progressCallback?: (progress: DownloadProgress) => void;
+  errorLogger?: ErrorLogger;
 }
 
 export class DownloadRunner {
